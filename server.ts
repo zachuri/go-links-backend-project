@@ -14,17 +14,20 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 			res.status(418).send({ message: "We need a username input!!" });
 		}
 
+		// Added authorization header for axios request
 		const headers = {
 			Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
 			"Content-Type": "application/json",
 		};
 
+		// Api request params
 		const perPage = 100;
 		const page = 1;
 		const reposUrl = `https://api.github.com/users/${username}/repos?per_page=${perPage}&page=${page}`;
 		const reposResponse = await axios.get(reposUrl, { headers });
-		let repositories = reposResponse.data;
 
+		// Response variablse
+		let repositories = reposResponse.data;
 		let totalStargazers = 0;
 		let totalForkCount = 0;
 		let totalSize = 0;
@@ -46,21 +49,23 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 				language: string;
 			}) => {
 				totalSize += repo.size;
-				totalForkCount += repo.forks_count;
 				totalStargazers += repo.stargazers_count;
+				totalForkCount += repo.forks_count;
 				const repoLanguages = repo.language;
+
+				// obtain languages
 				languages = languages.concat(repoLanguages);
 			}
 		);
 
-		// Obtain Average Size
+		// Calculate the average size
 		const averageSize = calculateAverageSize(totalSize, totalCount);
 
-		// Obtain language count
+		// Get languages name and count
 		const languageCounts = calculateLanguageCounts(languages);
 
 		const finalResponse = {
-			totalCount: totalCount,
+			totalCount: totalCount /*calcualted total repo count*/,
 			totalStargazers: totalStargazers /* calculated total stargazers */,
 			totalForkCount: totalForkCount /* calculated total fork count */,
 			averageSize: averageSize /* calculated average size */,
@@ -74,10 +79,12 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 	}
 });
 
+// To start express server
 app.listen(port, () => {
 	console.log(`Server is running on port ${port}.`);
 });
 
+// Helper functions -----------------------------------------------------
 function calculateAverageSize(totalSize: number, totalCount: number) {
 	const averageSizeBytes = totalSize / totalCount;
 
