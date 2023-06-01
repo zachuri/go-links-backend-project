@@ -21,8 +21,8 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 		};
 
 		// Api request params
-		const perPage = 100;
-		const page = 1;
+		const perPage = 100; // Solves default request of 30
+		const page = 1; // needed page to get the correct data
 		const reposUrl = `https://api.github.com/users/${username}/repos?per_page=${perPage}&page=${page}`;
 		const reposResponse = await axios.get(reposUrl, { headers });
 
@@ -75,7 +75,7 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 		res.status(200).send(finalResponse);
 	} catch (error) {
 		console.log("Error: ", error);
-		res.status(418).send({ message: "error" });
+		res.status(400).send({ message: "error" });
 	}
 });
 
