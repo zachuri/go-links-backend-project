@@ -26,10 +26,12 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 		const response = await axios.get(apiUrl, { headers });
 		// const reposResponse = await axios.get(response.data.items[0].repos_url);
 
-		const perPage = 300;
-		const reposUrl = `https://api.github.com/users?q=user:${username}/repos&per_page=${perPage}`;
-		const reposResponse = await axios.get(reposUrl);
-		const totalCount = Object.keys(reposResponse.data).length;
+		const perPage = 100;
+		const page = 1;
+		const reposUrl = `https://api.github.com/users/${username}/repos?per_page=${perPage}&page=${page}`;
+		const reposResponse = await axios.get(reposUrl, { headers });
+		const repostiories = reposResponse.data;
+		const totalCount = repostiories.length;
 
 		// const statsResponse = {
 		//   totalCount: response.data.total_count,
@@ -45,7 +47,6 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 		res.status(418).send({ message: "error" });
 	}
 });
-
 
 app.listen(port, () => {
 	console.log(`Server is running on port ${port}.`);
