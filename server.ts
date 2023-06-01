@@ -24,12 +24,22 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 		const reposUrl = `https://api.github.com/users/${username}/repos?per_page=${perPage}&page=${page}`;
 		const reposResponse = await axios.get(reposUrl, { headers });
 		const repositories = reposResponse.data;
-		const totalCount = repositories.length;
 
+		// const totalCount = repositories.length;
 		let totalStargazers = 0;
 		let totalForkCount = 0;
 		let totalSize = 0;
 		let languages: string[] = [];
+
+		let filteredRepositories = repositories;
+		if (forked === "false") {
+			filteredRepositories = repositories.filter(
+				(repo: { fork: any }) => !repo.fork
+			);
+		}
+
+		const totalCount = filteredRepositories.length;
+
 		repositories.forEach(
 			(repo: {
 				size: number;
@@ -49,7 +59,6 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 		const averageSize = calculateAverageSize(totalSize, totalCount);
 
 		// Obtain language count
-		console.log(languages);
 		const languageCounts = calculateLanguageCounts(languages);
 
 		const finalResponse = {
