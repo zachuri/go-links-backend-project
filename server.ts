@@ -23,22 +23,20 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 		const page = 1;
 		const reposUrl = `https://api.github.com/users/${username}/repos?per_page=${perPage}&page=${page}`;
 		const reposResponse = await axios.get(reposUrl, { headers });
-		const repositories = reposResponse.data;
+		let repositories = reposResponse.data;
 
-		// const totalCount = repositories.length;
 		let totalStargazers = 0;
 		let totalForkCount = 0;
 		let totalSize = 0;
 		let languages: string[] = [];
 
-		let filteredRepositories = repositories;
+		// Filtered Repositories
 		if (forked === "false") {
-			filteredRepositories = repositories.filter(
-				(repo: { fork: any }) => !repo.fork
-			);
+			repositories = repositories.filter((repo: { fork: any }) => !repo.fork);
 		}
 
-		const totalCount = filteredRepositories.length;
+		// Get the total count
+		let totalCount = repositories.length;
 
 		repositories.forEach(
 			(repo: {
