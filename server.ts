@@ -26,24 +26,27 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 		const repositories = reposResponse.data;
 		const totalCount = repositories.length;
 
-		// obtain total stargazers from each repository
 		let totalStargazers = 0;
-		repositories.forEach((repo: { stargazers_count: number }) => {
-			totalStargazers += repo.stargazers_count;
-		});
-
-		// calculate the average size
+		let totalForkCount = 0;
 		let totalSize = 0;
-		repositories.forEach((repo: { size: any }) => {
-			totalSize += repo.size;
-		});
+		repositories.forEach(
+			(repo: {
+				size: number;
+				forks_count: number;
+				stargazers_count: number;
+			}) => {
+				totalSize += repo.size;
+				totalForkCount += repo.forks_count;
+				totalStargazers += repo.stargazers_count;
+			}
+		);
 
 		const averageSize = calculateAverageSize(totalSize, totalCount);
 
 		const finalResponse = {
 			totalCount: totalCount,
 			totalStargazers: totalStargazers /* calculated total stargazers */,
-			totalForkCount: "" /* calculated total fork count */,
+			totalForkCount: totalForkCount /* calculated total fork count */,
 			averageSize: averageSize /* calculated average size */,
 			languages: "" /* calculated language counts */,
 		};
