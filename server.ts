@@ -15,37 +15,37 @@ app.get("/user-stats", async (req: Request, res: Response) => {
 		}
 
 		// Fetch user repostiory data
-		const apiUrl = `https://api.github.com/users/${username}/repos`;
+		const apiUrl = `https://api.github.com/search/users?q=user:${username}`;
+		// const apiUrl = `https://api.github.com/users/${username}/repos`;
+
 		const headers = {
 			Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
 			"Content-Type": "application/json",
 		};
 
 		const response = await axios.get(apiUrl, { headers });
+		// const reposResponse = await axios.get(response.data.items[0].repos_url);
 
-		res.status(200).send(response.data);
+		const perPage = 300;
+		const reposUrl = `https://api.github.com/users?q=user:${username}/repos&per_page=${perPage}`;
+		const reposResponse = await axios.get(reposUrl);
+		const totalCount = Object.keys(reposResponse.data).length;
+
+		// const statsResponse = {
+		//   totalCount: response.data.total_count,
+		//   totalStargazers: /* calculated total stargazers */,
+		//   totalForkCount: /* calculated total fork count */,
+		//   averageSize: /* calculated average size */,
+		//   languages: /* calculated language counts */,
+		// };
+
+		res.status(200).send("Total Count" + totalCount);
 	} catch (error) {
 		console.log("Error: ", error);
 		res.status(418).send({ message: "error" });
 	}
 });
 
-// // app.get("/", (req, res) => {
-// app.get("/user-stats", async (req: Request, res: Response) => {
-// 	try {
-// 		const { username, forked } = req.query;
-// 		// const { username } = req.body;
-
-// 		// if (!username) {
-// 		// 	res.status(418).send({ message: "We need a username input!!" });
-// 		// }
-
-// 		// res.status(200).send("Hello, world!");
-// 		res.status(200).send(username);
-// 	} catch (error) {
-// 		res.status(418).send({ message: "We need a username input!!" });
-// 	}
-// });
 
 app.listen(port, () => {
 	console.log(`Server is running on port ${port}.`);
